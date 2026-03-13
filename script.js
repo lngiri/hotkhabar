@@ -1,48 +1,105 @@
-// script.js – now using Netlify Function
+// script.js – Nepal + World News
 const newsContainer = document.getElementById("news-container");
 
 function toggleDarkMode() {
     document.body.classList.toggle("dark-mode");
 }
 
-async function loadNews(category = "general") {
-    newsContainer.innerHTML = "Loading news...";
+// Load Nepal news from OnlineKhabar
+async function loadNepalNews() {
     try {
-        // Call our own function (relative URL)
-        const response = await fetch(`/.netlify/functions/getNews?category=${category}`);
+        const response = await fetch('/.netlify/functions/getOnlineKhabar');
         const data = await response.json();
-
-        if (data.articles && data.articles.length > 0) {
-            displayNews(data.articles);
-        } else {
-            newsContainer.innerHTML = "No news found.";
-        }
+        return data.articles || [];
     } catch (err) {
-        newsContainer.innerHTML = "Error loading news.";
-        console.error(err);
+        console.error('Nepal news error:', err);
+        return [];
     }
 }
 
-async function displayNews(articles) {
+// Load World news from NewsAPI
+async function loadWorldNews() {
+    try {
+        const response = await fetch('/.netlify/functions/getNews?category=general');
+        const data = await response.json();
+        return data.articles || [];
+    } catch (err) {
+        console.error('World news error:', err);
+        return [];
+    }
+}
+
+// Main function to load all news
+async function loadAllNews() {
+    newsContainer.innerHTML = "Loading news...";
+    
+    const [nepalArticles, worldArticles] = await Promise.all([
+        loadNepalNews(),
+        loadWorldNews()
+    ]);
+    
+    displayNews(nepalArticles, worldArticles);
+}
+
+// Display both sections
+function displayNews(nepalArticles, worldArticles) {
     newsContainer.innerHTML = "";
-    const articlesToShow = articles.slice(0, 5); // show first 5
-
-    for (let article of articlesToShow) {
-        // We'll skip AI summary for now to keep it simple
-        const card = document.createElement("div");
-        card.className = "news-card";
-        card.innerHTML = `
-            <h3>${article.title} <span class="hot-badge">🔥</span></h3>
-            <p>${article.description || ""}</p>
-            <p><strong>Source:</strong> ${article.source.name}</p>
-            <a href="${article.url}" target="_blank">Read Full Article →</a>
-        `;
-        newsContainer.appendChild(card);
+    
+    // Nepal Section
+    if (nepalArticles.length > 0) {
+        const nepalSection = document.createElement('h2');
+        nepalSection.textContent = '🇳🇵 नेपाल समाचार (Nepal News)';
+        nepalSection.style.gridColumn = '1 / -1';
+        nepalSection.style.margin = '20px 0 10px';
+        newsContainer.appendChild(nepalSection);
+        
+        nepalArticles.forEach(article => {
+            const card = createNewsCard(article);
+            newsContainer.appendChild(card);
+        });
+    }
+    
+    // World Section
+    if (worldArticles.length > 0) {
+        const worldSection = document.createElement('h2');
+        worldSection.textContent = '🌍 World News';
+        worldSection.style.gridColumn = '1 / -1';
+        worldSection.style.margin = '30px 0 10px';
+        newsContainer.appendChild(worldSection);
+        
+        worldArticles.slice(0, 6).forEach(article => {
+            const card = createNewsCard(article);
+            newsContainer.appendChild(card);
+        });
+    }
+    
+    if (nepalArticles.length === 0 && worldArticles.length === 0) {
+        newsContainer.innerHTML = "No news found. Please try again later.";
     }
 }
 
-// Auto-refresh every 5 minutes
-setInterval(() => loadNews(), 300000);
+// Helper to create a news card
+function createNewsCard(article) {
+    const card = document.createElement("div");
+    card.className = "news-card";
+    
+    let imageHtml = '';
+    if (article.image || article.urlToImage) {
+        imageHtml = `<img src="${article.image || article.urlToImage}" style="width:100%; height:150px; object-fit:cover; border-radius:4px; margin-bottom:10px;">`;
+    }
+    
+    card.innerHTML = `
+        ${imageHtml}
+        <h3>${article.title} <span class="hot-badge">🔥</span></h3>
+        <p>${article.excerpt || article.description || ""}</p>
+        <p><strong>Source:</strong> ${article.source || article.source?.name || 'OnlineKhabar'}</p>
+        <a href="${article.url}" target="_blank">Read Full Article →</a>
+    `;
+    return card;
+}
+
+// Auto-refresh every 10 minutes
+setInterval(() => loadAllNews(), 600000);
 
 // Initial load
-loadNews();
+loadAllNews();
