@@ -1,82 +1,25 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<title>HotKhabar - Nepal News Aggregator</title>
-
-<style>
-
-body{
-font-family: Arial;
-background:#f4f4f4;
-margin:0;
-}
-
-header{
-background:#e60023;
-color:white;
-padding:15px;
-font-size:28px;
-font-weight:bold;
-}
-
-.container{
-width:90%;
-margin:auto;
-}
-
-.news{
-background:white;
-padding:15px;
-margin-top:15px;
-border-radius:8px;
-}
-
-.news h2{
-font-size:18px;
-}
-
-.source{
-color:gray;
-font-size:13px;
-}
-
-</style>
-
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HotKhabar - Nepal News Aggregator</title>
+    <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
+    <header>🔥 HOTKHABAR</header>
 
-<header>
-🔥 HOTKHABAR
-</header>
+    <div class="filters">
+        <button onclick="loadNews('general')">All</button>
+        <button onclick="loadNews('sports')">Sports</button>
+        <button onclick="loadNews('business')">Business</button>
+        <button onclick="loadNews('entertainment')">Entertainment</button>
+        <button onclick="loadNews('last5min')">Last 5 min</button>
+        <button onclick="toggleDarkMode()">🌙 Dark Mode</button>
+    </div>
 
-<div class="container">
+    <main id="news-container"></main>
 
-<div class="news">
-<h2>नेपालमा नयाँ राजनीतिक बहस सुरु</h2>
-<p>यो HotKhabar को demo news हो। अब यहाँ विभिन्न news websites बाट news आउनेछ।</p>
-<p class="source">Source: Demo</p>
-</div>
-
-<div class="news">
-<h2>Sports: नेपालको शानदार जीत</h2>
-<p>HotKhabar मा sports news पनि आउनेछ।</p>
-<p class="source">Source: Demo</p>
-</div>
-
-</div>
-<link rel="stylesheet" href="style.css">
-<script src="script.js"></script>
-
-<main id="news-container"></main>
-<div class="filters">
-    <button onclick="loadNews('general')">All</button>
-    <button onclick="loadNews('nepali')">Nepali</button>
-    <button onclick="loadNews('sports')">Sports</button>
-    <button onclick="loadNews('business')">Business</button>
-    <button onclick="loadNews('entertainment')">Entertainment</button>
-    <button onclick="loadNews('last5min')">Last 5 min</button>
-    <button onclick="toggleDarkMode()">🌙</button>
-</div>
+    <script src="script.js"></script>
 </body>
 </html>
