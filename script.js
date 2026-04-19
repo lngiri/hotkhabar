@@ -11,11 +11,6 @@ function toggleDarkMode() {
     localStorage.setItem('darkMode', document.body.classList.contains('dark-mode'));
 }
 
-// Initialize dark mode preference
-if (localStorage.getItem('darkMode') === 'true') {
-    document.body.classList.add('dark-mode');
-}
-
 // Load Nepal news from OnlineKhabar with caching
 async function loadNepalNews() {
     const now = Date.now();
@@ -36,36 +31,47 @@ async function loadNepalNews() {
 }
 
 // Load World news from NewsAPI with caching
-async function loadWorldNews() {
+async function loadWorldNews(category = 'general') {
     const now = Date.now();
-    if (cachedWorldNews && (now - worldCacheTime.value) < CACHE_DURATION) {
+    if (cachedWorldNews && (now - worldCacheTime.value) < CACHE_DURATION && category === 'general') {
         return cachedWorldNews;
     }
     
     try {
-        const response = await fetch('/.netlify/functions/getNews?category=general');
+        const response = await fetch(`/.netlify/functions/getNews?category=${category}`);
         const data = await response.json();
+        
+        if (data.status === 'error') {
+            throw new Error(data.message || 'API Error');
+        }
+        
         cachedWorldNews = data.articles || [];
         worldCacheTime.value = now;
         return cachedWorldNews;
     } catch (err) {
         console.error('World news error:', err);
-        return cachedWorldNews || [];
+        // Return cached data or empty array
+        return (category === 'general' ? cachedWorldNews : []) || [];
     }
 }
 
 // Main function to load all news
-async function loadAllNews() {
+async function loadAllNews(category = 'general') {
     if (newsContainer.innerHTML === "" || newsContainer.textContent === "Loading news...") {
         newsContainer.innerHTML = "<div class='loading'>Loading news...</div>";
     }
     
-    const [nepalArticles, worldArticles] = await Promise.all([
-        loadNepalNews(),
-        loadWorldNews()
-    ]);
-    
-    displayNews(nepalArticles, worldArticles);
+    try {
+        const [nepalArticles, worldArticles] = await Promise.all([
+            loadNepalNews(),
+            loadWorldNews(category)
+        ]);
+        
+        displayNews(nepalArticles, worldArticles);
+    } catch (err) {
+        console.error('Failed to load news:', err);
+        newsContainer.innerHTML = "<p class='no-news'>Failed to load news. Please check your connection and try again.</p>";
+    }
 }
 
 // Display both sections with document fragment for better performance
@@ -147,11 +153,21 @@ function createNewsCard(article) {
 }
 
 // Auto-refresh every 10 minutes
-setInterval(() => loadAllNews(), 600000);
+setInterval(() => loadAllNews('general'), 600000);
+
+// Expose loadNews function globally for filter buttons
+window.loadNews = function(category) {
+    loadAllNews(category);
+};
+
+// Initialize dark mode preference
+if (localStorage.getItem('darkMode') === 'true') {
+    document.body.classList.add('dark-mode');
+}
 
 // Initial load when DOM is ready
 if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', loadAllNews);
+    document.addEventListener('DOMContentLoaded', () => loadAllNews('general'));
 } else {
-    loadAllNews();
+    loadAllNews('general');
 }
