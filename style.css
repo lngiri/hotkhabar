@@ -31,6 +31,7 @@ header {
     font-weight: bold;
     border: 1px solid #ff4500;
     transition: 0.2s;
+    will-change: background, color;
 }
 
 .filters button:hover {
@@ -47,12 +48,27 @@ header {
     margin: 0 auto;
 }
 
+.section-header {
+    grid-column: 1 / -1;
+    margin: 20px 0 10px;
+}
+
+.loading, .no-news {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 40px;
+    font-size: 1.2rem;
+    color: #666;
+}
+
 .news-card {
     background: #fff;
     padding: 20px;
     border-radius: 8px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.1);
     transition: transform 0.2s;
+    will-change: transform;
+    backface-visibility: hidden;
 }
 
 .news-card:hover {
