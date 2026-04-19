@@ -3,12 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="HotKhabar - Real-time Nepal and World News Aggregator">
     <title>HotKhabar - Nepal News Aggregator</title>
+    <link rel="preconnect" href="/.netlify/functions">
     <link rel="stylesheet" href="style.css">
+    <link rel="preload" href="script.js" as="script">
 </head>
 <body>
     <header>🔥 HOTKHABAR</header>
-
+    
     <div class="filters">
         <button onclick="loadNews('general')">All</button>
         <button onclick="loadNews('sports')">Sports</button>
@@ -17,9 +20,9 @@
         <button onclick="loadNews('last5min')">Last 5 min</button>
         <button onclick="toggleDarkMode()">🌙 Dark Mode</button>
     </div>
-
+    
     <main id="news-container"></main>
-
-    <script src="script.js"></script>
+    
+    <script src="script.js" defer></script>
 </body>
 </html>
